@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Auto Discard</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <section class="card">
+        <h1>Tab Auto Discard</h1>
+        <p class="muted">超过设定时间未再次查看的后台标签页会被自动丢弃，点回去时由浏览器自动恢复。</p>
+      </section>
+
+      <section class="card">
+        <label class="field">
+          <span>超时时间（分钟）</span>
+          <input id="timeoutMinutes" type="number" min="1" max="10" step="1">
+        </label>
+
+        <label class="checkbox">
+          <input id="skipPinned" type="checkbox">
+          <span>跳过固定标签页</span>
+        </label>
+
+        <label class="checkbox">
+          <input id="skipAudible" type="checkbox">
+          <span>跳过正在播放声音的标签页</span>
+        </label>
+
+        <button id="saveSettings" class="primary-button" type="button">保存设置</button>
+      </section>
+
+      <section class="card">
+        <div class="site-row">
+          <span class="label">当前站点</span>
+          <strong id="currentSite">读取中...</strong>
+        </div>
+        <p id="excludeState" class="muted">正在检查排除状态...</p>
+        <button id="toggleCurrentSite" class="primary-button" type="button">将当前站点加入排除</button>
+      </section>
+
+      <section class="card">
+        <div class="section-header">
+          <div>
+            <span class="label">记录面板</span>
+            <h2>最近自动丢弃</h2>
+          </div>
+          <button id="clearHistory" class="ghost-button" type="button">清空</button>
+        </div>
+        <p id="historyMeta" class="muted">正在读取自动丢弃记录...</p>
+        <ul id="historyList" class="history-list"></ul>
+      </section>
+
+      <section class="card card-footer">
+        <p id="statusText" class="status" aria-live="polite"></p>
+        <a class="link" href="options.html" target="_blank" rel="noreferrer">打开完整设置页</a>
+      </section>
+    </main>
+
+    <script src="rules.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

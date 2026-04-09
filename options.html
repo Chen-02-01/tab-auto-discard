@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Auto Discard Settings</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="page">
+      <section class="panel hero">
+        <div>
+          <p class="eyebrow">Chrome Tab Manager</p>
+          <h1>自动丢弃标签页设置</h1>
+          <p class="lead">这个扩展会按分钟扫描后台标签页。超时未再次查看时自动丢弃，重新点击时由浏览器自动恢复。</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>基础设置</h2>
+        <form id="settingsForm" class="form-grid">
+          <label class="field">
+            <span>超时时间（1 - 10 分钟）</span>
+            <input id="timeoutMinutes" type="number" min="1" max="10" step="1">
+          </label>
+
+          <label class="toggle">
+            <input id="skipPinned" type="checkbox">
+            <span>跳过固定标签页</span>
+          </label>
+
+          <label class="toggle">
+            <input id="skipAudible" type="checkbox">
+            <span>跳过正在播放声音的标签页</span>
+          </label>
+
+          <button id="saveSettings" type="submit">保存基础设置</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>排除列表</h2>
+        <p class="help">支持三种写法：`example.com`、`*.example.com`、`*://mail.example.com/*`</p>
+
+        <form id="addRuleForm" class="rule-form">
+          <input id="newRule" type="text" placeholder="输入站点或匹配规则">
+          <button type="submit">添加规则</button>
+        </form>
+
+        <ul id="rulesList" class="rules-list"></ul>
+      </section>
+
+      <p id="statusText" class="status" aria-live="polite"></p>
+    </main>
+
+    <script src="rules.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

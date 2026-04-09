@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Auto Discard",
+  "description": "Automatically discards background tabs after a timeout, with per-site exclusions.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "99",
+  "permissions": [
+    "alarms",
+    "storage",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Tab Auto Discard",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html"
+}
