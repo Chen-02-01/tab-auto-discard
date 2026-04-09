@@ -5,6 +5,10 @@ var DEFAULT_SETTINGS = {
   skipAudible: true
 };
 
+/**
+ * wrapChromeCall
+ * @author Chen
+ */
 function wrapChromeCall(register) {
   return new Promise(function (resolve, reject) {
     register(function (result) {
@@ -18,18 +22,30 @@ function wrapChromeCall(register) {
   });
 }
 
+/**
+ * storageGet
+ * @author Chen
+ */
 function storageGet(keys) {
   return wrapChromeCall(function (done) {
     chrome.storage.local.get(keys, done);
   });
 }
 
+/**
+ * storageSet
+ * @author Chen
+ */
 function storageSet(items) {
   return wrapChromeCall(function (done) {
     chrome.storage.local.set(items, done);
   });
 }
 
+/**
+ * sanitizeSettings
+ * @author Chen
+ */
 function sanitizeSettings(rawSettings) {
   var settings = rawSettings && typeof rawSettings === "object" ? rawSettings : {};
   var timeoutMinutes = Number(settings.timeoutMinutes);
@@ -64,17 +80,29 @@ var elements = {
   timeoutMinutes: document.getElementById("timeoutMinutes")
 };
 
+/**
+ * showStatus
+ * @author Chen
+ */
 function showStatus(message, isError) {
   elements.statusText.textContent = message || "";
   elements.statusText.className = isError ? "status error" : "status";
 }
 
+/**
+ * renderSettings
+ * @author Chen
+ */
 function renderSettings() {
   elements.timeoutMinutes.value = String(state.settings.timeoutMinutes);
   elements.skipPinned.checked = state.settings.skipPinned;
   elements.skipAudible.checked = state.settings.skipAudible;
 }
 
+/**
+ * renderRules
+ * @author Chen
+ */
 function renderRules() {
   elements.rulesList.innerHTML = "";
 
@@ -106,6 +134,10 @@ function renderRules() {
   });
 }
 
+/**
+ * loadSettings
+ * @author Chen
+ */
 async function loadSettings() {
   var stored = await storageGet(["settings"]);
   state.settings = sanitizeSettings(stored.settings);
@@ -113,6 +145,10 @@ async function loadSettings() {
   renderRules();
 }
 
+/**
+ * persistSettings
+ * @author Chen
+ */
 async function persistSettings(successMessage) {
   await storageSet({
     settings: state.settings

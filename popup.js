@@ -7,6 +7,10 @@ var DEFAULT_SETTINGS = {
 
 var HISTORY_PREVIEW_LIMIT = 6;
 
+/**
+ * wrapChromeCall
+ * @author Chen
+ */
 function wrapChromeCall(register) {
   return new Promise(function (resolve, reject) {
     register(function (result) {
@@ -20,24 +24,40 @@ function wrapChromeCall(register) {
   });
 }
 
+/**
+ * storageGet
+ * @author Chen
+ */
 function storageGet(keys) {
   return wrapChromeCall(function (done) {
     chrome.storage.local.get(keys, done);
   });
 }
 
+/**
+ * storageSet
+ * @author Chen
+ */
 function storageSet(items) {
   return wrapChromeCall(function (done) {
     chrome.storage.local.set(items, done);
   });
 }
 
+/**
+ * tabsQuery
+ * @author Chen
+ */
 function tabsQuery(queryInfo) {
   return wrapChromeCall(function (done) {
     chrome.tabs.query(queryInfo, done);
   });
 }
 
+/**
+ * sanitizeSettings
+ * @author Chen
+ */
 function sanitizeSettings(rawSettings) {
   var settings = rawSettings && typeof rawSettings === "object" ? rawSettings : {};
   var timeoutMinutes = Number(settings.timeoutMinutes);
@@ -57,6 +77,10 @@ function sanitizeSettings(rawSettings) {
   };
 }
 
+/**
+ * sanitizeDiscardHistory
+ * @author Chen
+ */
 function sanitizeDiscardHistory(rawDiscardHistory) {
   var cleanHistory = [];
 
@@ -100,6 +124,10 @@ function sanitizeDiscardHistory(rawDiscardHistory) {
   return cleanHistory;
 }
 
+/**
+ * isSupportedSite
+ * @author Chen
+ */
 function isSupportedSite(url) {
   try {
     var parsed = new URL(url);
@@ -109,6 +137,10 @@ function isSupportedSite(url) {
   }
 }
 
+/**
+ * formatTimestamp
+ * @author Chen
+ */
 function formatTimestamp(timestamp) {
   var date = new Date(timestamp);
 
@@ -143,17 +175,29 @@ var elements = {
   toggleCurrentSite: document.getElementById("toggleCurrentSite")
 };
 
+/**
+ * showStatus
+ * @author Chen
+ */
 function showStatus(message, isError) {
   elements.statusText.textContent = message || "";
   elements.statusText.className = isError ? "status error" : "status";
 }
 
+/**
+ * renderSettings
+ * @author Chen
+ */
 function renderSettings() {
   elements.timeoutMinutes.value = String(state.currentSettings.timeoutMinutes);
   elements.skipPinned.checked = state.currentSettings.skipPinned;
   elements.skipAudible.checked = state.currentSettings.skipAudible;
 }
 
+/**
+ * renderCurrentSite
+ * @author Chen
+ */
 function renderCurrentSite() {
   var url = state.currentUrl;
   var exactHostRuleExists = state.currentSettings.excludedRules.indexOf(state.currentHost) !== -1;
@@ -176,6 +220,10 @@ function renderCurrentSite() {
     : "将当前站点加入排除";
 }
 
+/**
+ * renderHistory
+ * @author Chen
+ */
 function renderHistory() {
   elements.historyList.innerHTML = "";
 
@@ -211,6 +259,10 @@ function renderHistory() {
   });
 }
 
+/**
+ * loadPopupState
+ * @author Chen
+ */
 async function loadPopupState() {
   var stored = await storageGet(["settings", "discardHistory"]);
   var activeTabs = await tabsQuery({
@@ -229,6 +281,10 @@ async function loadPopupState() {
   renderHistory();
 }
 
+/**
+ * saveSettings
+ * @author Chen
+ */
 async function saveSettings() {
   var nextSettings = {
     timeoutMinutes: elements.timeoutMinutes.value,
@@ -247,6 +303,10 @@ async function saveSettings() {
   showStatus("设置已保存。");
 }
 
+/**
+ * toggleCurrentSiteRule
+ * @author Chen
+ */
 async function toggleCurrentSiteRule() {
   if (!state.currentHost || !isSupportedSite(state.currentUrl)) {
     return;
@@ -277,6 +337,10 @@ async function toggleCurrentSiteRule() {
   renderCurrentSite();
 }
 
+/**
+ * clearHistory
+ * @author Chen
+ */
 async function clearHistory() {
   state.discardHistory = [];
   await storageSet({

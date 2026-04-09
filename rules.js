@@ -1,8 +1,16 @@
 (function (globalScope) {
+  /**
+   * escapeRegex
+   * @author Chen
+   */
   function escapeRegex(value) {
     return value.replace(/[|\\{}()[\]^$+?.]/g, "\\$&");
   }
 
+  /**
+   * normalizeRule
+   * @author Chen
+   */
   function normalizeRule(rule) {
     if (typeof rule !== "string") {
       return "";
@@ -21,6 +29,10 @@
     return normalized;
   }
 
+  /**
+   * extractHostname
+   * @author Chen
+   */
   function extractHostname(url) {
     try {
       return new URL(url).hostname.toLowerCase();
@@ -29,10 +41,18 @@
     }
   }
 
+  /**
+   * isUrlPattern
+   * @author Chen
+   */
   function isUrlPattern(rule) {
     return rule === "<all_urls>" || rule.indexOf("://") !== -1 || rule.indexOf("/") !== -1;
   }
 
+  /**
+   * matchAllUrls
+   * @author Chen
+   */
   function matchAllUrls(url) {
     try {
       var parsed = new URL(url);
@@ -42,11 +62,19 @@
     }
   }
 
+  /**
+   * matchWildcardHostname
+   * @author Chen
+   */
   function matchWildcardHostname(rule, hostname) {
     var regexSource = "^" + escapeRegex(rule).replace(/\\\*/g, ".*") + "$";
     return new RegExp(regexSource, "i").test(hostname);
   }
 
+  /**
+   * matchHostnameRule
+   * @author Chen
+   */
   function matchHostnameRule(rule, hostname) {
     if (!rule || !hostname) {
       return false;
@@ -59,6 +87,10 @@
     return hostname === rule || hostname.endsWith("." + rule);
   }
 
+  /**
+   * matchUrlPattern
+   * @author Chen
+   */
   function matchUrlPattern(rule, url) {
     if (rule === "<all_urls>") {
       return matchAllUrls(url);
@@ -68,6 +100,10 @@
     return new RegExp(regexSource, "i").test(url);
   }
 
+  /**
+   * ruleMatchesUrl
+   * @author Chen
+   */
   function ruleMatchesUrl(rule, url) {
     var normalizedRule = normalizeRule(rule);
 
@@ -82,6 +118,10 @@
     return matchHostnameRule(normalizedRule, extractHostname(url));
   }
 
+  /**
+   * getMatchingRule
+   * @author Chen
+   */
   function getMatchingRule(rules, url) {
     if (!Array.isArray(rules) || !url) {
       return "";
@@ -96,6 +136,10 @@
     return "";
   }
 
+  /**
+   * sortAndDedupeRules
+   * @author Chen
+   */
   function sortAndDedupeRules(rules) {
     var unique = {};
     var result = [];

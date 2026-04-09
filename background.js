@@ -26,6 +26,10 @@ var cachedState = null;
 var activeTabByWindow = {};
 var lastFocusedWindowId = chrome.windows.WINDOW_ID_NONE;
 
+/**
+ * runSafely
+ * @author Chen
+ */
 function runSafely(label, task) {
   Promise.resolve()
     .then(task)
@@ -34,6 +38,10 @@ function runSafely(label, task) {
     });
 }
 
+/**
+ * wrapChromeCall
+ * @author Chen
+ */
 function wrapChromeCall(register) {
   return new Promise(function (resolve, reject) {
     register(function (result) {
@@ -47,54 +55,90 @@ function wrapChromeCall(register) {
   });
 }
 
+/**
+ * storageGet
+ * @author Chen
+ */
 function storageGet(keys) {
   return wrapChromeCall(function (done) {
     chrome.storage.local.get(keys, done);
   });
 }
 
+/**
+ * storageSet
+ * @author Chen
+ */
 function storageSet(items) {
   return wrapChromeCall(function (done) {
     chrome.storage.local.set(items, done);
   });
 }
 
+/**
+ * tabsQuery
+ * @author Chen
+ */
 function tabsQuery(queryInfo) {
   return wrapChromeCall(function (done) {
     chrome.tabs.query(queryInfo, done);
   });
 }
 
+/**
+ * tabsGet
+ * @author Chen
+ */
 function tabsGet(tabId) {
   return wrapChromeCall(function (done) {
     chrome.tabs.get(tabId, done);
   });
 }
 
+/**
+ * tabsUpdate
+ * @author Chen
+ */
 function tabsUpdate(tabId, updateProperties) {
   return wrapChromeCall(function (done) {
     chrome.tabs.update(tabId, updateProperties, done);
   });
 }
 
+/**
+ * tabsDiscard
+ * @author Chen
+ */
 function tabsDiscard(tabId) {
   return wrapChromeCall(function (done) {
     chrome.tabs.discard(tabId, done);
   });
 }
 
+/**
+ * windowsGet
+ * @author Chen
+ */
 function windowsGet(windowId) {
   return wrapChromeCall(function (done) {
     chrome.windows.get(windowId, {}, done);
   });
 }
 
+/**
+ * windowsGetLastFocused
+ * @author Chen
+ */
 function windowsGetLastFocused() {
   return wrapChromeCall(function (done) {
     chrome.windows.getLastFocused({}, done);
   });
 }
 
+/**
+ * sanitizeSettings
+ * @author Chen
+ */
 function sanitizeSettings(rawSettings) {
   var settings = rawSettings && typeof rawSettings === "object" ? rawSettings : {};
   var timeoutMinutes = Number(settings.timeoutMinutes);
@@ -114,6 +158,10 @@ function sanitizeSettings(rawSettings) {
   };
 }
 
+/**
+ * sanitizeTabState
+ * @author Chen
+ */
 function sanitizeTabState(rawTabState) {
   var cleanState = {};
 
@@ -135,6 +183,10 @@ function sanitizeTabState(rawTabState) {
   return cleanState;
 }
 
+/**
+ * sanitizeDiscardHistory
+ * @author Chen
+ */
 function sanitizeDiscardHistory(rawDiscardHistory) {
   var cleanHistory = [];
 
@@ -178,6 +230,10 @@ function sanitizeDiscardHistory(rawDiscardHistory) {
   return cleanHistory.slice(0, DISCARD_HISTORY_LIMIT);
 }
 
+/**
+ * rememberActiveTab
+ * @author Chen
+ */
 function rememberActiveTab(windowId, tabId) {
   if (typeof windowId !== "number") {
     return;
@@ -191,10 +247,18 @@ function rememberActiveTab(windowId, tabId) {
   delete activeTabByWindow[String(windowId)];
 }
 
+/**
+ * getRememberedActiveTab
+ * @author Chen
+ */
 function getRememberedActiveTab(windowId) {
   return activeTabByWindow[String(windowId)] || null;
 }
 
+/**
+ * rebuildWindowTracking
+ * @author Chen
+ */
 async function rebuildWindowTracking() {
   var activeTabs = await tabsQuery({
     active: true
@@ -218,6 +282,10 @@ async function rebuildWindowTracking() {
   }
 }
 
+/**
+ * getState
+ * @author Chen
+ */
 async function getState() {
   if (cachedState) {
     return cachedState;
@@ -237,6 +305,10 @@ async function getState() {
   return cachedState;
 }
 
+/**
+ * saveSettings
+ * @author Chen
+ */
 async function saveSettings(settings) {
   var state = await getState();
   state.settings = sanitizeSettings(settings);
@@ -246,6 +318,10 @@ async function saveSettings(settings) {
   return state.settings;
 }
 
+/**
+ * saveTabState
+ * @author Chen
+ */
 async function saveTabState(tabState) {
   var state = await getState();
   state.tabState = sanitizeTabState(tabState);
@@ -255,6 +331,10 @@ async function saveTabState(tabState) {
   return state.tabState;
 }
 
+/**
+ * saveDiscardHistory
+ * @author Chen
+ */
 async function saveDiscardHistory(discardHistory) {
   var state = await getState();
   state.discardHistory = sanitizeDiscardHistory(discardHistory);
@@ -264,6 +344,10 @@ async function saveDiscardHistory(discardHistory) {
   return state.discardHistory;
 }
 
+/**
+ * ensureAlarm
+ * @author Chen
+ */
 async function ensureAlarm() {
   chrome.alarms.create(ALARM_NAME, {
     delayInMinutes: 1,
@@ -271,6 +355,10 @@ async function ensureAlarm() {
   });
 }
 
+/**
+ * isSupportedDiscardUrl
+ * @author Chen
+ */
 function isSupportedDiscardUrl(url) {
   if (!url) {
     return false;
@@ -284,6 +372,10 @@ function isSupportedDiscardUrl(url) {
   }
 }
 
+/**
+ * isManualDiscardCandidate
+ * @author Chen
+ */
 function isManualDiscardCandidate(tab, settings) {
   if (!tab || !tab.id || tab.discarded || tab.status === "loading") {
     return false;
@@ -309,6 +401,10 @@ function isManualDiscardCandidate(tab, settings) {
   return !TabDiscardRules.getMatchingRule(settings.excludedRules, tab.url);
 }
 
+/**
+ * markTabViewed
+ * @author Chen
+ */
 async function markTabViewed(tabId, timestamp) {
   if (!tabId) {
     return;
@@ -322,6 +418,10 @@ async function markTabViewed(tabId, timestamp) {
   await saveTabState(state.tabState);
 }
 
+/**
+ * markRememberedTabViewed
+ * @author Chen
+ */
 async function markRememberedTabViewed(windowId) {
   var tabId = getRememberedActiveTab(windowId);
 
@@ -333,6 +433,10 @@ async function markRememberedTabViewed(windowId) {
 }
 
 
+/**
+ * seedExistingTabs
+ * @author Chen
+ */
 async function seedExistingTabs() {
   var state = await getState();
   var allTabs = await tabsQuery({});
@@ -372,6 +476,10 @@ async function seedExistingTabs() {
   }
 }
 
+/**
+ * syncFocusedTab
+ * @author Chen
+ */
 async function syncFocusedTab() {
   var focusedWindow;
 
@@ -401,6 +509,10 @@ async function syncFocusedTab() {
   await markTabViewed(activeTabs[0].id);
 }
 
+/**
+ * applyAutoDiscardablePolicy
+ * @author Chen
+ */
 async function applyAutoDiscardablePolicy(tab) {
   if (!tab || !tab.id || !tab.url || !isSupportedDiscardUrl(tab.url)) {
     return;
@@ -423,6 +535,10 @@ async function applyAutoDiscardablePolicy(tab) {
   }
 }
 
+/**
+ * refreshAutoDiscardablePolicy
+ * @author Chen
+ */
 async function refreshAutoDiscardablePolicy() {
   var allTabs = await tabsQuery({});
 
@@ -431,6 +547,10 @@ async function refreshAutoDiscardablePolicy() {
   }
 }
 
+/**
+ * getDueTabIds
+ * @author Chen
+ */
 function getDueTabIds(tabState, now, discardThresholdMs) {
   var dueTabIds = [];
 
@@ -449,6 +569,10 @@ function getDueTabIds(tabState, now, discardThresholdMs) {
   return dueTabIds;
 }
 
+/**
+ * discardExpiredTabs
+ * @author Chen
+ */
 async function discardExpiredTabs() {
   var state = await getState();
   var settings = state.settings;
@@ -498,6 +622,10 @@ async function discardExpiredTabs() {
   }
 }
 
+/**
+ * appendDiscardHistory
+ * @author Chen
+ */
 async function appendDiscardHistory(tab, discardedAt) {
   if (!tab || !tab.id) {
     return;
@@ -518,6 +646,10 @@ async function appendDiscardHistory(tab, discardedAt) {
   await saveDiscardHistory(state.discardHistory);
 }
 
+/**
+ * initializeExtension
+ * @author Chen
+ */
 async function initializeExtension() {
   var state = await getState();
   await saveSettings(state.settings);
@@ -530,6 +662,10 @@ async function initializeExtension() {
   await refreshAutoDiscardablePolicy();
 }
 
+/**
+ * handleTabActivated
+ * @author Chen
+ */
 async function handleTabActivated(activeInfo) {
   if (!activeInfo || !activeInfo.tabId || typeof activeInfo.windowId !== "number") {
     return;
@@ -559,6 +695,10 @@ async function handleTabActivated(activeInfo) {
   await markTabViewed(activeInfo.tabId);
 }
 
+/**
+ * handleWindowFocusChanged
+ * @author Chen
+ */
 async function handleWindowFocusChanged(windowId) {
   if (lastFocusedWindowId !== chrome.windows.WINDOW_ID_NONE && lastFocusedWindowId !== windowId) {
     await markRememberedTabViewed(lastFocusedWindowId);
