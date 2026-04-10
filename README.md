@@ -1,5 +1,10 @@
 # Tab Auto Discard
 
+# 主界面
+<img width="437" height="739" alt="image" src="https://github.com/user-attachments/assets/3a15410f-3c57-4e89-9da9-872a531f5698" />
+<img width="1107" height="1001" alt="image" src="https://github.com/user-attachments/assets/1bce8e8b-4d98-47ad-9d65-59768bbc253e" />
+
+
 一个面向 Chrome 99 的轻量扩展：
 
 - 后台标签页超过设定时间未再次查看时，自动执行 `discard`
